@@ -79,7 +79,7 @@ class EvaluateAtEpoch(Callback):
                 error = self.error_norm(u_ref, u_pred, rot_ref, rot_pred)
                 self.error.append(error)
 
-                self.plotting(x_test, u_ref, u_pred, rot_ref, rot_pred, epoch)
+                # self.plotting(x_test, u_ref, u_pred, rot_ref, rot_pred, epoch)
 
     def error_norm(self, u_ref, u_pred, rot_ref, rot_pred):
         # take square of differences and sum them

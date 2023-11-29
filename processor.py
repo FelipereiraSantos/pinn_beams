@@ -51,6 +51,8 @@ class Processor:
             print("The data fitting process (training) has started for the model: ", count)
             history = model.train(pmodel.input_data, pmodel.target_data, batch_size=bs, epochs=epoch, verbose=0,
                                   learning_rate=lr, callbacks=[evaluate_callback], stop_loss_value=1e-12)
+            end_time = time.time()
+            print("Time of training in seconds: ", (end_time - start_time))
 
             # For discover of parameters
             # if (pmodel.problem != "EB_stability_discovery") and (pmodel.problem != "EB_stability_discovery_timobook"):
