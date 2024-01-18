@@ -26,5 +26,5 @@ layers activation k_init
 %END_BATCHES
 
 %BEGIN_EPOCHS
-[401]
+[801]
 %END_EPOCHS

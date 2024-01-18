@@ -55,7 +55,9 @@ class PostProcessor:
 
             # Combine the arrays into a structured array
             combined_array = np.column_stack(results)
-            np.savetxt("NumericalResults/" + file_name + '_' + net_par + '_' + str(num) + '.csv', combined_array, delimiter=',', header=','.join(headers),
+            # np.savetxt("NumericalResults/" + file_name + '_' + net_par + '_' + str(num) + '.csv', combined_array, delimiter=',', header=','.join(headers),
+            #            comments='')
+            np.savetxt("NumericalResults/" + file_name + '.csv', combined_array, delimiter=',', header=','.join(headers),
                        comments='')
 
             error.append(err)
@@ -109,7 +111,7 @@ class PostProcessor:
         fmt = ('%d', '%g')
 
         combined_array = np.column_stack([epochs, error])
-        np.savetxt("NumericalResults/" + file_name + '_' + net_par + '_error.csv', combined_array, delimiter=',', header=','.join(headers), comments='',
+        np.savetxt("NumericalResults/" + file_name + '.csv', combined_array, delimiter=',', header=','.join(headers), comments='',
                        fmt=fmt)
 
     @classmethod

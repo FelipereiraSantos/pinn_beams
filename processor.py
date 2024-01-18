@@ -35,10 +35,10 @@ class Processor:
             net_par = str(lr) + '_' + str(bs) + '_' + str(epoch)
 
             # Defining the model
-            # model = sn.SciModel(pmodel.variables, pmodel.targets, optimizer='adam',
-            #                     loss_func="mse")
             model = sn.SciModel(pmodel.variables, pmodel.targets, optimizer='adam',
-                                loss_func="mse", load_weights_from='weights_test.hdf5')
+                                loss_func="mse")
+            # model = sn.SciModel(pmodel.variables, pmodel.targets, optimizer='adam',
+            #                     loss_func="mse", load_weights_from='weights_test.hdf5')
             # model.save_weights("weights_test.hdf5")
             # sys.exit()
             print("The model number {} was defined. ".format(count))
@@ -50,9 +50,10 @@ class Processor:
             print("\nStarting the training!")
             print("The data fitting process (training) has started for the model: ", count)
             history = model.train(pmodel.input_data, pmodel.target_data, batch_size=bs, epochs=epoch, verbose=0,
-                                  learning_rate=lr, callbacks=[evaluate_callback], stop_loss_value=1e-12)
+                                  learning_rate=lr, callbacks=[evaluate_callback], stop_loss_value=1e-15)
             end_time = time.time()
             print("Time of training in seconds: ", (end_time - start_time))
+            # model.save_weights("Tk_statics_pp_q_weights.hdf5")
 
             # For discover of parameters
             # if (pmodel.problem != "EB_stability_discovery") and (pmodel.problem != "EB_stability_discovery_timobook"):
@@ -60,7 +61,7 @@ class Processor:
             #     mesh = self.cback_config[2]
             #     PostProcessor.save_csv_error_mesh(pmodel, problem, mesh, net_par, file_name)  # Error for each mesh
 
-            PostProcessor.save_csv_loss(history, epoch, net_par, file_name)  # Loss function for each epoch
+            # PostProcessor.save_csv_loss(history, epoch, net_par, file_name)  # Loss function for each epoch
             PostProcessor.save_csv_error(evaluate_callback.error, evaluate_epochs, net_par, file_name) # Error for each epoch
             # PostProcessor.plotting_loss_function_pdf(history, epoch, net_par, file_name)
             # PostProcessor.plotting_time_cost_pdf(evaluate_callback.count_time, evaluate_epochs, net_par, file_name)

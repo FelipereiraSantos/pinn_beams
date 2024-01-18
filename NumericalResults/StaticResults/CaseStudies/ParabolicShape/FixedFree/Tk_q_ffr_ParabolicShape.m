@@ -64,6 +64,7 @@ E = 100; % Young Modulus (Pa = N/m^2)
 nu = 0.3;
 G = E / (2 * (1 + nu));
 q = -1.0; % Load
+k = 9/10;  % Form factor 
 n = 41; % Number of 'node values'
 var = L/(n-1); % Division of the beam domain based on the number of nodes
 x_var = 0:var:L;
@@ -71,22 +72,22 @@ x_var = 0:var:L;
 % ====EULER-BERNOULLI=================================
 
 cte = 32 * q / (E * pi); % Disttributed load
-f = cte * ((-2*L*x+x^2 + L^2) / (a * x ^ 2 + b * x + c) ^ 4);  %  d2u_dx2
+f = cte * ((-2*L*x+x^2 + L^2) / (a * x ^ 2 + b * x + c) ^ 4);  %  drot_dx
 
 g = int(f, x);
 C1 = subs(g, x, 0);
-rot_aux1 = g - C1;
-h = int(rot_aux1, x);
-C2 = subs(h, x, 0);
-u_aux1 = h - C2;
-
-v_eb = subs(u_aux1, x, x_var);
-rot_eb = subs(rot_aux1, x, x_var);
+rot_aux1 = g - C1;   % Rotation of the beam
+% h = int(rot_aux1, x);
+% C2 = subs(h, x, 0);
+% u_aux1 = h - C2;
+% 
+% v_eb = subs(u_aux1, x, x_var);
+% rot_eb = subs(rot_aux1, x, x_var);
 
 
 % =============TIMOSHENKO=========================
-mesh = [5, 11, 17, 23, 29, 35, 41, 500];
-X = cell(1, 8);
+mesh = [5, 11, 17, 23, 29, 35, 41, 200, 300, 500];
+X = cell(1, 10);
 i = 1;
 for m = mesh
    var = L/(m-1);
@@ -98,12 +99,12 @@ end
 I = (pi/64)*(a * x ^ 2 + b * x + c) ^ 4;
 A = (pi/4)*(a * x ^ 2 + b * x + c) ^ 2;
 Irot_diff = I*f;
-eqn = E * diff(Irot_diff, x) + G*A*(diff(v,x) - rot_aux1) == 0;
+eqn = E * diff(Irot_diff, x) + G*A*k*(diff(v,x) - rot_aux1) == 0;
 cond = [v(0)==0];
 vSol(x) = dsolve(eqn, cond);
 
 i = 1;
-fileg = 'Tk_ffr_q_ParabolicShape_ref_';
+fileg = 'Tk_ffr_q_ParabolicShape_ref_circ_';
 for m = mesh
     x_var = X{i};
     v = vSol(x_var);

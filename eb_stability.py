@@ -45,9 +45,9 @@ class EB_Stability:
         self.E = E
         self.I = I
         self.a = a
-        P_cr = ((np.pi ** 2 * self.E * self.I) / (4 * self.L ** 2))
-        self.P = 4 * P_cr
-        self.k = np.sqrt(np.abs(self.P) / (self.E * self.I))
+        # P_cr = ((np.pi ** 2 * self.E * self.I) / (4 * self.L ** 2))
+        # self.P = 4 * P_cr
+        # self.k = np.sqrt(np.abs(self.P) / (self.E * self.I))
         # self.G = E / (2 * (1 + nu))
         # self.nu = nu
         # self.k = 5. / 6.
@@ -91,7 +91,7 @@ class EB_Stability:
 
         """
 
-        self.w = 0.5
+        self.w = 1
         self.eqDiff1 = (self.E * self.I) * self.d4u_dx4 + self.P * self.d2u_dx2 + self.w  # The sign in the load is due to the reference axis
 
         # Reference solution for the predictions ======================================

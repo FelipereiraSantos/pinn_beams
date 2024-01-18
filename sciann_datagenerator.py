@@ -63,8 +63,8 @@ class DataGeneratorX:
 
         counter = 0
         # domain points
-        x_dom = np.linspace(self.Xdomain[0], self.Xdomain[(num_support - 1)], num_sample, endpoint=False)
-        # x_dom = np.random.uniform(self.Xdomain[0], self.Xdomain[1], num_sample)
+        # x_dom = np.linspace(self.Xdomain[0], self.Xdomain[(num_support - 1)], num_sample, endpoint=False)
+        x_dom = np.random.uniform(self.Xdomain[0], self.Xdomain[(num_support - 1)], num_sample)
         ids_dom = np.arange(x_dom.shape[0])
         counter += ids_dom.size
 

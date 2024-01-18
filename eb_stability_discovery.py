@@ -48,7 +48,7 @@ class EB_Stability_Discovery:
 
         self.x = sn.Variable("x", dtype=dtype)
         self.u = sn.Functional('u', self.x, network[0], network[1], kernel_initializer=network[2])
-        self.rot = sn.Functional('rot', self.x, network[0], network[1], kernel_initializer=network[2])
+        # self.rot = sn.Functional('rot', self.x, network[0], network[1], kernel_initializer=network[2])
         self.P = sn.Parameter(P, inputs=self.x, name='Pcr')
         # self.alpha = sn.Parameter(1.0, inputs=self.x, name='Alpha')
 
@@ -165,7 +165,7 @@ class EB_Stability_Discovery:
         # Loss function
         self.targets = [self.eqDiff1,
                         BC_left_1, BC_left_2,
-                        BC_right_1, BC_right_2, BC_right_3]
+                         BC_right_1, BC_right_2, BC_right_3]
 
         dg = DataGeneratorX(X=[0., self.L],
                             num_sample=self.num_training_samples,

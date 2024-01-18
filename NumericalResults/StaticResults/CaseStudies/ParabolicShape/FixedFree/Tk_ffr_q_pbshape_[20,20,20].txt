@@ -1,6 +1,6 @@
 %BEGIN_INITIAL_FEATURES
 CallBack epochs_range mesh_pred
-['on', [100, 400, 50], [5, 11, 17]]
+['on', [50, 400, 50], [5, 11, 17]]
 %END_INITIAL_FEATURES
 
 %BEGIN_PROBLEMS

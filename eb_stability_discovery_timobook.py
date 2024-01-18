@@ -151,31 +151,41 @@ class EB_Stability_Discovery_TimoBook:
         self.ref_solu = P_ref
         # Reference solution for the predictions ======================================
 
-        I_fx = self.I * ((self.L + self.a - self.x) /(self.a)) ** 2
+
+        I_fx = self.I * ((self.x + self.a) / self.a) ** 2
         self.eqDiff1 = self.E * I_fx * self.d2u_dx2 + self.P * self.u
 
-
         # Boundary conditions
-        BC_left_1 = (self.x == 0.0) * (self.du_dx)
-        # BC_left_2 = (self.x == 0.0) * (self.u - 1)
-        # BC_left_3 = (self.x == 0.) * (self.x ** 2 * self.d3u_dx3 + 2 * self.x * self.d2u_dx2 + self.du_dx * (self.P * self.a ** 2) / (self.E * self.I))
+        BC_left_1 = (self.x == 0.0) * (self.du_dx - 0.5)
+        BC_left_2 = (self.x == 0.0) * (self.u)
 
-        BC_right_1 = (self.x == self.L) * (self.d2u_dx2)
-        BC_right_2 = (self.x == self.L) * (self.u)
-        BC_right_3 = (self.x == self.L) * (self.du_dx - 0.5)
-        partial_I = ((self.L + self.a - self.x) /self.a) ** 2
-        diff_aux = sn.diff(partial_I * self.d2u_dx2, self.x)
+        BC_right_1 = (self.x == self.L) * (self.du_dx)
+
+        # I_fx = self.I * ((self.L + self.a - self.x) /(self.a)) ** 2
+        # self.eqDiff1 = self.E * I_fx * self.d2u_dx2 + self.P * self.u
+        #
+        #
+        # # Boundary conditions
+        # BC_left_1 = (self.x == 0.0) * (self.du_dx)
+        # # BC_left_2 = (self.x == 0.0) * (self.u - 1)
+        # # BC_left_3 = (self.x == 0.) * (self.x ** 2 * self.d3u_dx3 + 2 * self.x * self.d2u_dx2 + self.du_dx * (self.P * self.a ** 2) / (self.E * self.I))
+        #
+        # BC_right_1 = (self.x == self.L) * (self.d2u_dx2)
+        # BC_right_2 = (self.x == self.L) * (self.u)
+        # BC_right_3 = (self.x == self.L) * (self.du_dx - 0.5)
+        # partial_I = ((self.L + self.a - self.x) /self.a) ** 2
+        # diff_aux = sn.diff(partial_I * self.d2u_dx2, self.x)
         # BC_right_3 = (self.x == self.L) * ((self.d3u_dx3 * (self.L + self.a - self.x) /(self.a)) ** 2 - 2*((self.L + self.a - self.x) /(self.a)) * self.d2u_dx2 + self.du_dx * self.P / (self.E * self.I))
         # BC_right_4 = (self.x == self.L) * (self.d3u_dx3 - 2 * self.d2u_dx2 + self.du_dx * self.P / (self.E * self.I))
 
         # Loss function
         self.targets = [self.eqDiff1,
-                   BC_left_1,
-                   BC_right_1, BC_right_2, BC_right_3]
+                   BC_left_1,BC_left_2,
+                   BC_right_1]
 
         dg = DataGeneratorX(X=[0., self.L],
                             num_sample=self.num_training_samples,
-                            targets=1 * ['domain'] + 1 * ['bc-left'] + 3 * ['bc-right'])
+                            targets=1 * ['domain'] + 2 * ['bc-left'] + 1 * ['bc-right'])
 
         # Creating the training input points
         self.input_data, self.target_data = dg.get_data()

@@ -11,6 +11,7 @@ from euler_bernoulli_beam import EulerBernoulli
 from eb_dynamics import EB_Dynamics
 from eb_stability_discovery import EB_Stability_Discovery
 from eb_stability_discovery_timobook import EB_Stability_Discovery_TimoBook
+from nonlinear_timoex import Nonlinear_TimoEx
 
 class InputInformation:
     """
@@ -73,6 +74,8 @@ class InputInformation:
             return self.EB_stability_discovery_data(*self.model_parameters)
         elif self.problem[0] == "EB_stability_discovery_timobook":
             return self.EB_stability_discovery_data_timobook(*self.model_parameters)
+        elif self.problem[0] == "Nonlinear_TimoEx":
+            return self.Nonlinear_TimoEx_data(*self.model_parameters)
         elif self.problem[0] == "EB_dynamics":
             return self.EB_dynamics_data()
         elif self.problem[0] == "Tk_continuous_bending":
@@ -198,6 +201,7 @@ class InputInformation:
 
         # Number of test points for the predictions
         num_test_samples = int(0.10 * num_training_samples)
+        # num_test_samples = 6
 
         tk = Timoshenko(self.network, *problem_parameters, num_training_samples, num_test_samples)
 
@@ -213,6 +217,29 @@ class InputInformation:
             tk.varying_sec(self.problem)
 
         return tk
+
+    def Nonlinear_TimoEx_data(self, P, b, h, L, E, num_training_samples):
+        """
+             Method that represents the Euler-Bernoulli beam for stability problems and its settings for
+             discovery of parameters
+        """
+        # Beam initial data --------------------------
+        # Inertia Moment [m^4]
+        I = b * h ** 3 / 12
+
+        # Defining the list of the problem parameters (material and geometry)
+        problem_parameters = [P, L, E, I]
+
+        # Number of test points for the predictions
+        num_test_samples = int(0.10 * num_training_samples)
+
+        nonlinear_disc = Nonlinear_TimoEx(self.network, *problem_parameters, num_training_samples, num_test_samples)
+        print("\nInput data section is finished.")
+
+        if self.problem[1] == "fixed" and self.problem[2] == "free":
+            nonlinear_disc.fixed_free(self.problem)
+
+        return nonlinear_disc
 
     def EB_stability_discovery_data(self, P, b, h, L, E, num_training_samples):
         """

@@ -2,44 +2,54 @@ import sys
 from numerical_results import NumericalResults
 import numpy as np
 import tensorflow as tf
-# import os
+from tensorflow.python.client import device_lib
+import os
 # os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
 
 def implementation():
     num_results = 'on'  # on or off
     mesh = [5, 11, 17, 21]
+
     if num_results == 'on':
         k = 0
         initial_features, problems, model_parameters, neural_nets, optimizers, epochs, bc_sizes = NumericalResults.file_reading()
         for j, problem in enumerate(problems):
+            # bc_s = []  # Batch size list to use an adaptative batch size approach
+            # bc_s.append(bc_sizes[j])
+            # print(bc_s)
             k = k + 1
             m_parameters = model_parameters[j]
             for i, net in enumerate(neural_nets):
                 # print("\nThe training of the following neural network has started: " + str(net[0]))
                 # file_name = (problem[1])[0] + problem[0] + str(net[0]) + str(m_parameters[5]) + "_" + str(k)
-                file_name = 'Tk_statics_ffr_q_' + str(m_parameters[6]) + '_' + str(k)
+                # file_name = 'Tk_statics_ffr_q_' + str(m_parameters[6]) + '_' + str(k) + str(net[i])
+                file_name = 'Tk_ffr_q_ParabolicShape_error_' + str(k)
                 gs = NumericalResults(initial_features, m_parameters, net, optimizers, epochs, bc_sizes, file_name, problem[1], mesh)
                 gs.training()
-                i = i + 1
-                print("\nThe training of the following neural network has ended: " + str(net[0]))
+                print("\nThe training of the following neural network has ended: " + str(net[2]))
             print("The following model is trained: ", k)
         print("\nThe numerical results are available!")
     sys.exit()
 
 if __name__ == '__main__':
+    # print(device_lib.list_local_devices())
     # np.random.seed(1)
 
+    # Disabling the gpu for tensorflow
+    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
+    # Check if GPU is available
+    physical_devices = tf.config.experimental.list_physical_devices('GPU')
     # Verifique se a GPU está disponível
-    print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+    print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 
     # Configurando o dispositivo de processamento
     if tf.test.is_gpu_available():
-        with tf.device('/GPU:0'):  # Especifique o número da GPU se houver mais de uma
-    # Seu código de machine learning aqui
+        with tf.device('/device:GPU:0'):
           implementation()
 
     else:
-        print("GPU não disponível. Usando CPU.")
+        print("GPU is not available. Using CPU instead.")
         implementation()
 
 

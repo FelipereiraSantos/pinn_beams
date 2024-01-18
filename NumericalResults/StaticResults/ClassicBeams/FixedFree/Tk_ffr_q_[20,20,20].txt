@@ -1,6 +1,6 @@
 %BEGIN_INITIAL_FEATURES
 CallBack epochs_range mesh_pred
-['on', [100, 1200, 100], [5, 11, 17, 21]]
+['on', [100, 3000, 100], [5, 11, 17, 21]]
 %END_INITIAL_FEATURES
 
 %BEGIN_PROBLEMS
@@ -9,7 +9,7 @@ CallBack epochs_range mesh_pred
 
 %BEGIN_MODEL_PARAMETERS
 w   b  h  L  E  nu  num_samples
-[-1.0, 0.2, 0.5, 2.0, 100, 0.3, 5000]
+[-1.0, 0.2, 0.5, 2.0, 100, 0.3, 2000]
 %END_MODEL_PARAMETERS
 
 %BEGIN_NEURAL_NETS
@@ -26,5 +26,5 @@ layers activation k_init
 %END_BATCHES
 
 %BEGIN_EPOCHS
-[1201]
+[3001]
 %END_EPOCHS

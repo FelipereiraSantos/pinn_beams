@@ -51,6 +51,7 @@ class Timoshenko:
         self.G = E / (2 * (1 + nu))  # Shear modulus
         self.nu = nu
         self.k = 5. / 6.   # Form factor specific for a rectangular cross-section
+        # self.k = 9. / 10   # Form factor specific for a circular cross-section
         self.num_training_samples = num_training_samples
         self.num_test_samples = num_test_samples
 
@@ -59,12 +60,13 @@ class Timoshenko:
 
         self.x = sn.Variable("x", dtype=dtype)
 
-        self.u = sn.Functional('u', self.x, network[0], network[1])
-        self.rot = sn.Functional('rot', self.x, network[0], network[1])
-        self.M = sn.Functional('M', self.x, network[0], network[1], kernel_initializer=network[2])
 
-        # self.u = self.x * self.u_aux
-        # self.rot = self.x * self.rot_aux
+        self.u_aux = sn.Functional('u', self.x, network[0], network[1], kernel_initializer=network[2])
+        self.rot_aux = sn.Functional('rot', self.x, network[0], network[1], kernel_initializer=network[2])
+        # self.M = sn.Functional('M', self.x, network[0], network[1], kernel_initializer=network[2])
+
+        self.u = self.u_aux
+        self.rot = self.rot_aux
 
         self.du_dx = sn.diff(self.u, self.x)
         self.drot_dx = sn.diff(self.rot, self.x)
@@ -224,12 +226,12 @@ class Timoshenko:
 
         # Loss function
         self.targets = [self.eqDiff1, self.eqDiff2,
-                        BC_left_1, BC_left_2,
+                        BC_left_1,BC_left_2,
                         BC_right_1, BC_right_2]
 
         dg = DataGeneratorX(X=[0., self.L],
                             num_sample=self.num_training_samples,
-                            targets=2 * ['domain'] + 2 * ['bc-left'] + 2 * ['bc-right'])
+                            targets=3 * ['domain'] + 2 * ['bc-left'] + 2 * ['bc-right'])
 
         # Creating the training input points
         self.input_data, self.target_data = dg.get_data()
@@ -335,21 +337,43 @@ class Timoshenko:
         b = (4 * qm - qf - 3 * qi) / self.L
         c = qi
         pi = tf.constant(np.pi)
-        # I = (pi / 64) * (a * self.x ** 2 + b * self.x + c) ** 4
+
+        # b = 0.2
+        # h = (a * self.x ** 2 + b * self.x + c)
+        #
+        # I_var = b * h ** 3 / 12
+        # diff_I_var = b * 3 * h ** 2 * (2 * a * self.x + b) / 12
+        # A = b * h
+        # diff_A = b * (2 * a * self.x + b)
+        # I_A = h ** 2 / 12 # I over A
+        #
+        # diff_I_A = 3 * h * (2*a*self.x + b) / 12
+        #
+        # cte = self.w / (self.E)
+        # self.eqDiff1 = (self.du_dx - self.rot) + (self.E / (self.G * self.k)) * (
+        #             diff_I_A * self.drot_dx + I_A * self.d2rot_dx2)
+
+
+
+        I_var = (pi / 64) * (a * self.x ** 2 + b * self.x + c) ** 4
+        diff_I_var = (pi/16) * (a * self.x ** 2 + b * self.x + c) ** 3 * (2*a*self.x + b)
         diff_A = (pi/2)*(a * self.x ** 2 + b * self.x + c)*(2*a*self.x + b)
         A = (pi/4)*(a * self.x ** 2 + b * self.x + c)**2
         diff_I_A = (1/4)*(a * self.x ** 2 + b * self.x + c)*(2*a*self.x + b)
-        I_A = (1/16)*(a * self.x ** 2 + b * self.x + c)**2
+        I_A = (1/16)*(a * self.x ** 2 + b * self.x + c)**2 # I over A
         cte = 32 * self.w / (self.E * pi)
-        self.eqDiff1 = self.du_dx - self.rot + (self.E/(self.G * self.k))*(diff_I_A*self.drot_dx + I_A*self.d2rot_dx2)
-        # self.eqDiff1 = self.drot_dx - cte * (
-        #             (-2 * self.L * self.x + self.x ** 2 + self.L ** 2) / (a * self.x ** 2 + b * self.x + c) ** 4) # From the bending moment
+        # self.eqDiff1 = sn.diff(self.E * I_var * self.drot_dx, self.x) + A * self.G * self.k * (self.du_dx - self.rot)
+        # self.eqDiff1 = (self.du_dx - self.rot) + (self.E/(self.G * self.k))*(diff_I_A*self.drot_dx + I_A*self.d2rot_dx2)
 
-        self.eqDiff2 = (self.w/(self.G*self.k)) + (diff_A*(self.du_dx - self.rot) + A *(self.d2u_dx2 - self.drot_dx))
+        self.eqDiff1 = self.drot_dx - cte * (
+                    (-2 * self.L * self.x + self.x ** 2 + self.L ** 2) / (a * self.x ** 2 + b * self.x + c) ** 4) # From the bending moment
+
+        # self.eqDiff3 = self.E * (diff_I_var * self.drot_dx  + I_var * self.d2rot_dx2) + self.G*self.k * A * (self.du_dx - self.rot)
+        self.eqDiff2 = (self.w/(self.G*self.k)) + (diff_A *(self.du_dx - self.rot) + A *(self.d2u_dx2 - self.drot_dx))
         # self.eqDiff2 = (self.w/(self.G*self.k))*(self.L - self.x) - A * (self.du_dx - self.rot)
 
         # Define the file path
-        file_path = 'C:/Users/Felipe Pereira/PycharmProjects/beams_application/NumericalResults/StaticResults/CaseStudies/ParabolicShape/FixedFree/Tk_ffr_q_ParabolicShape_ref_500.csv'
+        file_path = 'C:/Users/felip/git/beam_pinns/NumericalResults/StaticResults/CaseStudies/ParabolicShape/FixedFree/Tk_ffr_q_ParabolicShape_ref_circ_200.csv'
 
         # Using numpy's genfromtxt function to read the CSV file
         # Skipping the first row if it contains headers
@@ -362,12 +386,12 @@ class Timoshenko:
         self.ref_solu = [u_ref, rot_ref]
 
         mesh = [5, 11, 17]
-        str_mesh = ['Tk_ffr_q_ParabolicShape_ref_5.csv', 'Tk_ffr_q_ParabolicShape_ref_11.csv',
-                    'Tk_ffr_q_ParabolicShape_ref_17.csv']
+        str_mesh = ['Tk_ffr_q_ParabolicShape_ref_circ_5.csv', 'Tk_ffr_q_ParabolicShape_ref_circ_11.csv',
+                    'Tk_ffr_q_ParabolicShape_ref_circ_17.csv']
         self.mesh_ref = []
         for i, num in enumerate(mesh):
             # Define the file path
-            file_path = 'C:/Users/Felipe Pereira/PycharmProjects/beams_application/NumericalResults/StaticResults/CaseStudies/ParabolicShape/FixedFree/' + \
+            file_path = 'C:/Users/felip/git/beam_pinns/NumericalResults/StaticResults/CaseStudies/ParabolicShape/FixedFree/' + \
                         str_mesh[i]
 
             # Using numpy's genfromtxt function to read the CSV file
@@ -407,15 +431,17 @@ class Timoshenko:
                 else:
                     u = np.concatenate((u_half, u_half[::-1]))
                     rot = np.concatenate((rot_half, rot_half[::-1]))
-                # u_half = -((self.w * self.L ** 4) / (2 * self.E * self.I)) * (
-                #         self.L * (3 * self.L + 4 * x) / (2 * (self.L + x) ** 2) + np.log(self.L + x) - 1.5 - np.log(
-                #     self.L) - \
-                #         x / (8 * self.L)) - ((self.w * self.L ** 2) / (self.G * self.A * self.k)) * (
-                #                  2 * self.L / (self.L + x) + np.log(self.L + x) - 2 - np.log(self.L))
-                # rot_half = -((self.w * self.L ** 4) / (2 * self.E * self.I)) * (x ** 2 / (self.L + x) ** 3) + (
-                #         (self.w * self.L ** 3) / (16 * self.E * self.I))
-                # u = u_half
-                # rot = rot_half
+                u_half = -((self.w * self.L ** 4) / (2 * self.E * self.I)) * (
+                        self.L * (3 * self.L + 4 * x) / (2 * (self.L + x) ** 2) + np.log(self.L + x) - 1.5 - np.log(
+                    self.L) - \
+                        x / (8 * self.L)) - ((self.w * self.L ** 2) / (self.G * self.A * self.k)) * (
+                                 2 * self.L / (self.L + x) + np.log(self.L + x) - 2 - np.log(self.L))
+                rot_half = -((self.w * self.L ** 4) / (2 * self.E * self.I)) * (x ** 2 / (self.L + x) ** 3) + (
+                        (self.w * self.L ** 3) / (16 * self.E * self.I))
+                u = u_half
+                rot = rot_half
+                print(rot_half)
+                sys.exit()
 
             elif problem[3] == "ParabolicLoad":
                 u = (4 * self.w / (self.E * self.I * self.L ** 2)) * (-x ** 6 / 360 + self.L * x ** 5 / 120 - self.L ** 3 * x ** 3 / 72 + self.L ** 5 * x / 120)\

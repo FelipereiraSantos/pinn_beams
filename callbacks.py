@@ -55,7 +55,23 @@ class EvaluateAtEpoch(Callback):
                 self.error.append(error)
                 # print("error: ", error)
 
-                self.plotting(x_test, u_ref, u_pred, rot_ref, rot_pred, epoch)
+                # self.plotting(x_test, u_ref, u_pred, rot_ref, rot_pred, epoch)
+
+            elif(self.pmodel.problem == 'Nonlinear_TimoEx'):
+                x_test = self.pmodel.x_test
+                rot_exact = self.pmodel.ref_solu
+                rot_pred = self.pmodel.rot.eval([x_test])
+                error = np.abs(rot_exact - rot_pred[-1]) / rot_exact
+                print("rot_pred: ", rot_pred[-1])
+                print("rot_exact: ", rot_exact)
+                print("error: ", error)
+                self.error.append(error)
+
+                # plt.plot(x_test, rot_pred, 'r')
+                # plt.grid(color='black', linestyle='--', linewidth=0.5)
+                # plt.legend(loc='best')
+                # plt.savefig(self.file_name + '_' + str(epoch) + '.pdf')
+                # plt.clf()  # Clears the current axis
 
             else:
 
