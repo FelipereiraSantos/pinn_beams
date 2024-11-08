@@ -1,0 +1,48 @@
+%BEGIN_INITIAL_FEATURES
+CallBack epochs_range mesh_pred
+['on', [40, 400, 20], [5, 11, 17]]
+%END_INITIAL_FEATURES
+
+%BEGIN_PROBLEMS
+["_ffr_P_", ["Nonlinear_TimoEx", "fixed", "free", "Nonlinear"]]
+["_ffr_P_", ["Nonlinear_TimoEx", "fixed", "free", "Nonlinear"]]
+["_ffr_P_", ["Nonlinear_TimoEx", "fixed", "free", "Nonlinear"]]
+["_ffr_P_", ["Nonlinear_TimoEx", "fixed", "free", "Nonlinear"]]
+["_ffr_P_", ["Nonlinear_TimoEx", "fixed", "free", "Nonlinear"]]
+["_ffr_P_", ["Nonlinear_TimoEx", "fixed", "free", "Nonlinear"]]
+["_ffr_P_", ["Nonlinear_TimoEx", "fixed", "free", "Nonlinear"]]
+["_ffr_P_", ["Nonlinear_TimoEx", "fixed", "free", "Nonlinear"]]
+["_ffr_P_", ["Nonlinear_TimoEx", "fixed", "free", "Nonlinear"]]
+["_ffr_P_", ["Nonlinear_TimoEx", "fixed", "free", "Nonlinear"]]
+%END_PROBLEMS
+
+%BEGIN_MODEL_PARAMETERS
+P   b  h  L  E num_samples
+[0.156, 0.2, 0.5, 2, 100, 2000]
+[0.156, 0.2, 0.5, 2, 100, 2000]
+[0.156, 0.2, 0.5, 2, 100, 2000]
+[0.156, 0.2, 0.5, 2, 100, 2000]
+[0.156, 0.2, 0.5, 2, 100, 2000]
+[0.156, 0.2, 0.5, 2, 100, 2000]
+[0.156, 0.2, 0.5, 2, 100, 2000]
+[0.156, 0.2, 0.5, 2, 100, 2000]
+[0.156, 0.2, 0.5, 2, 100, 2000]
+[0.156, 0.2, 0.5, 2, 100, 2000]
+%END_MODEL_PARAMETERS
+
+%BEGIN_NEURAL_NETS
+layers activation k_init
+[[20, 20, 20], 'tanh', 'lecun_normal']
+%END_NEURAL_NETS
+
+%BEGIN_OPTIMIZERS
+['Adam', 1E-3]
+%END_OPTIMIZERS
+
+%BEGIN_BATCHES
+[32]
+%END_BATCHES
+
+%BEGIN_EPOCHS
+[401]
+%END_EPOCHS

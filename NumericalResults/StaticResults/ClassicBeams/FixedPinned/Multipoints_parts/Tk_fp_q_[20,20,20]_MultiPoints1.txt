@@ -1,0 +1,38 @@
+%BEGIN_INITIAL_FEATURES
+CallBack epochs_range mesh_pred
+['on', [60, 400, 20], [5, 11, 17]]
+%END_INITIAL_FEATURES
+
+%BEGIN_PROBLEMS
+["_fp_q_", ["Tk_bending", "fixed", "pinned", "Classic"]]
+["_fp_q_", ["Tk_bending", "fixed", "pinned", "Classic"]]
+["_fp_q_", ["Tk_bending", "fixed", "pinned", "Classic"]]
+["_fp_q_", ["Tk_bending", "fixed", "pinned", "Classic"]]
+["_fp_q_", ["Tk_bending", "fixed", "pinned", "Classic"]]
+%END_PROBLEMS
+
+%BEGIN_MODEL_PARAMETERS
+w   b  h  L  E  nu  num_samples
+[-1.0, 0.2, 0.5, 2.0, 100, 0.3, 5000]
+[-1.0, 0.2, 0.5, 2.0, 100, 0.3, 4750]
+[-1.0, 0.2, 0.5, 2.0, 100, 0.3, 4500]
+[-1.0, 0.2, 0.5, 2.0, 100, 0.3, 4250]
+[-1.0, 0.2, 0.5, 2.0, 100, 0.3, 4000]
+%END_MODEL_PARAMETERS
+
+%BEGIN_NEURAL_NETS
+layers activation k_init
+[[20, 20, 20], 'tanh', 'lecun_normal']
+%END_NEURAL_NETS
+
+%BEGIN_OPTIMIZERS
+['Adam', 1E-3]
+%END_OPTIMIZERS
+
+%BEGIN_BATCHES
+[64]
+%END_BATCHES
+
+%BEGIN_EPOCHS
+[401]
+%END_EPOCHS

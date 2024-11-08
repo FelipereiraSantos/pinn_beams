@@ -2,14 +2,14 @@ import sys
 from numerical_results import NumericalResults
 import numpy as np
 import tensorflow as tf
-from tensorflow.python.client import device_lib
+# from tensorflow.python.client import device_lib
 import os
 # os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
 
-def implementation():
+def implementation(num):
     num_results = 'on'  # on or off
     mesh = [5, 11, 17, 21]
-
+    k = num
     if num_results == 'on':
         k = 0
         initial_features, problems, model_parameters, neural_nets, optimizers, epochs, bc_sizes = NumericalResults.file_reading()
@@ -17,19 +17,19 @@ def implementation():
             # bc_s = []  # Batch size list to use an adaptative batch size approach
             # bc_s.append(bc_sizes[j])
             # print(bc_s)
-            k = k + 1
+            # k = k + 1
             m_parameters = model_parameters[j]
             for i, net in enumerate(neural_nets):
                 # print("\nThe training of the following neural network has started: " + str(net[0]))
                 # file_name = (problem[1])[0] + problem[0] + str(net[0]) + str(m_parameters[5]) + "_" + str(k)
                 # file_name = 'Tk_statics_ffr_q_' + str(m_parameters[6]) + '_' + str(k) + str(net[i])
-                file_name = 'Tk_ffr_q_ParabolicShape_error_' + str(k)
+                file_name = 'Tk_ffr_q_glorot_normal_error_' + str(k + 1)
                 gs = NumericalResults(initial_features, m_parameters, net, optimizers, epochs, bc_sizes, file_name, problem[1], mesh)
                 gs.training()
                 print("\nThe training of the following neural network has ended: " + str(net[2]))
-            print("The following model is trained: ", k)
+            print("The following model is trained: ", (k + 1))
         print("\nThe numerical results are available!")
-    sys.exit()
+    # sys.exit()
 
 if __name__ == '__main__':
     # print(device_lib.list_local_devices())
@@ -50,7 +50,8 @@ if __name__ == '__main__':
 
     else:
         print("GPU is not available. Using CPU instead.")
-        implementation()
+        for i in range(5):
+            implementation(i)
 
 
     # problem = ["Tk_bending", "fixed", "pinned", "nada", "nadaparabolic", "nIparabolic"]  # EB_dynamics, Tk_bending, EB_stability, Tk_continuous_bending, EB_Stability_secvar

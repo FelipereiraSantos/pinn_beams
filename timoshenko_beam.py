@@ -65,8 +65,8 @@ class Timoshenko:
         self.rot_aux = sn.Functional('rot', self.x, network[0], network[1], kernel_initializer=network[2])
         # self.M = sn.Functional('M', self.x, network[0], network[1], kernel_initializer=network[2])
 
-        self.u = self.u_aux
-        self.rot = self.rot_aux
+        self.u = self.x * self.u_aux
+        self.rot = self.x * self.rot_aux
 
         self.du_dx = sn.diff(self.u, self.x)
         self.drot_dx = sn.diff(self.rot, self.x)
@@ -176,7 +176,7 @@ class Timoshenko:
             # Creating the training input points
         self.input_data, self.target_data = dg.get_data()
 
-    def fixed_free(self, problem):
+    def fixed_free2(self, problem):
         """
              Method for setting the features for the cantilever (fixed-free) Timoshenko beam
 
@@ -231,10 +231,70 @@ class Timoshenko:
 
         dg = DataGeneratorX(X=[0., self.L],
                             num_sample=self.num_training_samples,
-                            targets=3 * ['domain'] + 2 * ['bc-left'] + 2 * ['bc-right'])
+                            targets=2 * ['domain'] + 2 * ['bc-left'] + 2 * ['bc-right'])
 
         # Creating the training input points
         self.input_data, self.target_data = dg.get_data()
+
+    def fixed_free(self, problem):
+        """
+             Method for setting the features for the cantilever (fixed-free) Timoshenko beam
+
+             x_test: array of collocation points to evaluate the trained model and the reference solution
+             u_ref: reference solution for further comparisons (obtained analytical or numerically)
+             input_data: points distributed all over the problem domain for training
+             target_data: corresponded labels of the input_data points ("true" values"
+             targets: target constraints involving the differential equations and boundary conditions
+                    eqDiff: refers to one or more differential equations of the problem
+                    BC_left: refers to the target points at the left boundary of the beam
+
+        """
+
+        # Reference solution for the predictions ======================================
+        x = np.linspace(0, self.L, int(self.num_test_samples))
+        self.x_test = x
+        x, u_ref, rot_ref = self.reference_solution(x, problem)
+        self.ref_solu = [u_ref, rot_ref]
+        # x = np.linspace(0, self.L, int(self.num_test_samples))
+        # self.x_test = x
+        # u_ref = (self.w/(24 * self.E * self.I))*(x ** 4 - 4 * self.L * x ** 3 + 6 * self.L ** 2 * x ** 2) + (self.w/(2 * self.k * self.G * self.A))*(-x ** 2 + 2 * self.L * x)
+        # rot_ref = (self.w/(6 * self.E * self.I))*(x ** 3 - 3 * self.L* x ** 2 + 3 * self.L ** 2 * x)
+        # self.ref_solu = [u_ref, rot_ref]
+        # Reference solution for the predictions ======================================
+        if problem[3] == "ParabolicShape":
+            self.parabolic_shape()
+            # diff_I = (pi/16)*(a * x ** 2 + b * x + c) ** 3 * (2*a*self.x + b)
+
+            # For a point load at the end of the beam
+            # cte = 64 * self.w / (self.E * pi)
+            # self.eqDiff1 = self.drot_dx - cte * ((self.L-self.x) / (a * self.x ** 2 + b * self.x + c) ** 4)
+            # self.eqDiff2 = self.du_dx - self.rot + (self.E/self.G)*((a * self.x ** 2 + b * self.x + c)*(2*a*self.x +b)/4 * self.drot_dx + (a * self.x ** 2 + b * self.x + c)**2/16 * self.d2rot_dx2)
+
+            # self.eqDiff1 = self.d2u_dx2 - (64 * self.w / (np.pi * self.E)) * ((self.L - self.x)/(a * self.x ** 2 + b * self.x + c) ** 4)
+            #self.eqDiff1 = self.d4u_dx4 - 4*(64 * self.w / (np.pi * self.E)) * ((4 * a * self.x + 2 * b - (self.L - self.x) * (2 * a - (5 * (2 * a * self.x + b) ** 2)/(a * self.x ** 2 + b * self.x + c))) / (a * self.x ** 2 + b * self.x + c) ** 5)
+            # self.eqDiff1 = self.d2u_dx2 - (64 * self.w / (pi * self.E)) * ((self.L - self.x) / (a * self.x ** 2 + b * self.x + c) ** 4)
+            # self.eqDiff3 = self.M - (64 * self.w / (pi * self.E)) * ((self.L - self.x) / (a * self.x ** 2 + b * self.x + c) ** 4)
+            # self.eqDiff4 = self.M -  (self.E * I) * self.drot_dx
+
+        # Boundary conditions
+        BC_left_1 = (self.x == 0.) * (self.u)
+        BC_left_2 = (self.x == 0.) * (self.rot)
+
+        BC_right_1 = (self.x == self.L) * (self.drot_dx)
+        BC_right_2 = (self.x == self.L) * (self.du_dx - self.rot)
+
+
+        # Loss function
+        self.targets = [self.eqDiff1, self.eqDiff2,
+                        0.5*BC_right_1, 0.5*BC_right_2]
+
+        dg = DataGeneratorX(X=[0., self.L],
+                            num_sample=self.num_training_samples,
+                            targets=2 * ['domain'] + 2 * ['bc-right'])
+
+        # Creating the training input points
+        self.input_data, self.target_data = dg.get_data()
+
 
     def fixed_fixed(self, problem):
         """

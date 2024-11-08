@@ -61,7 +61,7 @@ class Processor:
             #     mesh = self.cback_config[2]
             #     PostProcessor.save_csv_error_mesh(pmodel, problem, mesh, net_par, file_name)  # Error for each mesh
 
-            # PostProcessor.save_csv_loss(history, epoch, net_par, file_name)  # Loss function for each epoch
+            PostProcessor.save_csv_loss(history, epoch, net_par, file_name)  # Loss function for each epoch
             PostProcessor.save_csv_error(evaluate_callback.error, evaluate_epochs, net_par, file_name) # Error for each epoch
             # PostProcessor.plotting_loss_function_pdf(history, epoch, net_par, file_name)
             # PostProcessor.plotting_time_cost_pdf(evaluate_callback.count_time, evaluate_epochs, net_par, file_name)

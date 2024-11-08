@@ -81,7 +81,7 @@ class PostProcessor:
         fmt = ('%d', '%g')
 
         combined_array = np.column_stack([epochs, loss])
-        np.savetxt("NumericalResults/" + file_name + '_' + net_par + '_loss.csv', combined_array, delimiter=',', header=','.join(headers), comments='',
+        np.savetxt("NumericalResults/" + file_name + '_loss.csv', combined_array, delimiter=',', header=','.join(headers), comments='',
                        fmt=fmt)
 
     @classmethod
