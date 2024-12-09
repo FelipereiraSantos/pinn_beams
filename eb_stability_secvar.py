@@ -26,14 +26,14 @@ class EB_Stability_secvar:
             Constructor of the Euler-Benoulli single beam stability class.
 
             Attributes:
-                network (keras network): usually represents a neural network used to approximate the target
-                problem solution
-                w: distributed load over the beam
+                network: list of settings of a neural network used to approximate the target
+                problem solution [size, activation function, initialiser]
+                P: Point load at the beam
                 L: beam span
                 E: Young modulus
                 I: inertia moment
-                nu: Poisson coefficient
-                A: cross-section area
+                a: distance of the applied P load from the beam axis
+
                 num_training_samples: number of samples for training the model
                 num_test_samples: number of samples for testing the model (predictions)
 
@@ -80,7 +80,10 @@ class EB_Stability_secvar:
     def model_info(self):
         """
         Method to write the physical model information in the text file output that contains the
-        elvaluation of the MSE errors
+        evaluation of the MSE errors
+
+        DISCLAIMER: this method might be unused
+
 
         """
         model_parameters = 'Number of training samples: ' + str(self.num_training_samples) + \

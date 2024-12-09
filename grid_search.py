@@ -166,35 +166,6 @@ class GridSearch:
                                 plt.savefig('GridSearch/' + self.file_name + '_' + str(lr) + '_' + str(bs) + '_' + str(epoch) + '.pdf')
                                 plt.close()
 
-                                # plt.plot(self.pmodel.x_test, y_pred, 'r', self.pmodel.x_test, self.pmodel.ref_solu[1], 'b')  # Predicted solution
-                                # plt.xlabel('x [m]')
-                                # plt.ylabel('displacements [m]')
-                                # plt.grid()
-                                # plt.grid(color='black', linestyle='--', linewidth=0.5)
-                                # plt.legend(loc='best')
-                                # plt.savefig('GridSearch/' + self.file_name + '_' + str(lr) + '_' + str(bs) + '_' + str(epoch) + '.pdf')
-                                # plt.close()
-                # elif optimizer[0] == 'L_bgf':
-                #     self.PINN_model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=lr),
-                #                             loss=tf.keras.losses.mse,
-                #                             metrics=tf.keras.metrics.mse,
-                #                             )
-                #     for bs in self.bc_size:
-                #         for epoch in self.epochs_num:
-                #             print("The data fitting process (training) has started for the model: ", count)
-                #             self.PINN_model.fit(self.pmodel.x_train, self.pmodel.y_train, epochs=epoch, batch_size=bs,
-                #                                 verbose=0)
-                #             y_pred = self.pmodel.network.predict(self.pmodel.x_test)
-                #             mse = mean_squared_error(self.pmodel.ref_solu[1], y_pred)
-                #             mean_abs = np.mean(np.abs(self.pmodel.ref_solu[1] - y_pred))
-                #             print("The data fitting process (training) has ended for the model: ", count)
-                #             print('L_rate: %s, batch_size: %s, Epochs: %s, MSE: %s' % (lr, bs, epoch, mse))
-                #             res = 'LBGST optimizer' + ' | batch_size: ' + str(bs) + ' | Epochs: ' + str(
-                #                 epoch) + ' | MSE: ' + str(mse) + ' | Mean(|yreal-ypred|): ' + str(mean_abs) + '\n'
-                #             f.write(res)
-                #             mse_values.append(mse)
-                #             j = j + 1
-                #             count = count + 1
 
             min_mse = np.amin(np.array(mse_values))
             min_mse_rot = np.amin(np.array(mse_rot_values))

@@ -2,20 +2,15 @@
 # @since 23 june, 2023
 # @version 23 june, 2023
 
-import numpy as np
-import matplotlib.pyplot as plt
 import sciann as sn
 import tensorflow as tf
 from sciann_datagenerator import *
 from data_generator import*
-# from data_generator import *
-import time
-import sys
 
 
 class EulerBernoulli:
     """
-         Class that represents provide features for the Buler Bernoulli bending beam analysis.
+         Class that represents provide features for the Euler Bernoulli bending beam analysis.
 
          Based on the problem''s initial and boundary conditions, the tasks of this class are:
 
@@ -28,9 +23,9 @@ class EulerBernoulli:
             Constructor of the Euler-Bernoulli beam class.
 
             Attributes:
-                network (keras network): usually represents a neural network used to approximate the target
-                problem solution
-                w: distributed load over the beam
+                network: list of settings of a neural network used to approximate the target
+                problem solution [size, activation function, initialiser]
+                w: distributed load over the beam span
                 L: beam span
                 E: Young modulus
                 I: inertia moment
@@ -84,7 +79,10 @@ class EulerBernoulli:
     def model_info(self):
         """
         Method to write the physical model information in the text file output that contains the
-        elvaluation of the MSE errors
+        evaluation of the MSE errors
+
+        DISCLAIMER: this method might be unused
+
 
         """
         model_parameters = 'Number of training samples: ' + str(self.num_training_samples) + \
@@ -370,34 +368,6 @@ class EulerBernoulli:
                 u = -(self.w / (24 * self.E * self.I)) * (-x ** 4 + 4 * self.L * x ** 3 - 6 * self.L ** 2 * x ** 2)
                 rot = -(self.w / (24 * self.E * self.I)) * (-4 * x ** 3 + 12 * self.L * x ** 2 - 12 * self.L ** 2 * x)
 
-                # x_var = smp.symbols('x_var', real=True)
-                # a, b, c = smp.symbols('a b c', real=True)
-                # L = smp.symbols('L', real=True, positive=True)
-                # q = smp.symbols('q', real=True)
-                # cte = smp.symbols('cte', real=True)
-                # E = smp.symbols('E', real=True, positive=True)
-                # pi = smp.symbols('pi', real=True, positive=True)
-                # # L = self.L
-                # # a = -1 / 18
-                # # b = 3 / 20
-                # # c = 3 / 20
-                # # q = self.w
-                # # E = self.E
-                # # pi = np.pi
-                # cte = 64*q/(E*pi)
-                # f = cte*((L - x_var) / (a*x_var**2 + b*x_var + c) ** 4)  # d2u_dx2
-                # g = smp.integrate(f, x_var)
-                # C1 = -smp.integrate(f, x_var).subs(x_var, 0)
-                # rot_aux1 = g + C1
-                # rot_aux2 = rot_aux1.subs(L, self.L).subs(a, -1/18).subs(b, 3/20).subs(c, 3/20).subs(q, self.w).subs(E, self.E).subs(pi, np.pi)
-                # rot_numeric = smp.lambdify(x_var, rot_aux2)
-                # h = smp.integrate(rot_aux1, x_var)
-                # C2 = -smp.integrate(rot_aux1, x_var).subs(x_var, 0)
-                # u_aux1 = h + C2
-                # u_aux2 = u_aux1.subs(L, self.L).subs(a, -1/18).subs(b, 3/20).subs(c, 3/20).subs(q, self.w).subs(E, self.E).subs(pi, np.pi)
-                # u_numeric = smp.lambdify(x_var, u_aux2)
-                # u = u_numeric(x)
-                # rot = rot_numeric(x)
             else:
                 u = -(self.w / (24 * self.E * self.I)) * (-x ** 4 + 4 * self.L * x ** 3 - 6 * self.L ** 2 * x ** 2)
                 rot = -(self.w / (24 * self.E * self.I)) * (-4 * x ** 3 + 12 * self.L * x ** 2 - 12 * self.L ** 2 * x)
@@ -415,9 +385,9 @@ class EulerBernoulli:
                     (133*self.L/24 + 8*self.L*np.log(2*self.L)))
 
             else:
-                u = -((self.w * L ** 4) / (2 * self.E * self.I)) * ((9 * L ** 2 * x + 14 * L * x ** 2 + x ** 3) / (8 * L * (L + x)**2) - np.log(1 + x / L))
+                u = -((self.w * self.L ** 4) / (2 * self.E * self.I)) * ((9 * self.L ** 2 * x + 14 * self.L * x ** 2 + x ** 3) / (8 * self.L * (self.L + x)**2) - np.log(1 + x / self.L))
                 # rot1 = -((self.w * L ** 4) / (2 * self.E * self.I)) * (L ** 3 + 3 * L ** 2 * x - 5 * L * x ** 2 + x ** 3)/(8 * L * (L + x) ** 3)
-                rot = -((self.w * L ** 3) / (16 * self.E * self.I)) * (1 - 8 * L * x ** 2/(L + x) ** 3)
+                rot = -((self.w * self.L ** 3) / (16 * self.E * self.I)) * (1 - 8 * self.L * x ** 2/(self.L + x) ** 3)
 
         return [x, u, rot]
 
@@ -439,7 +409,7 @@ class EulerBernoulli:
             u = (self.w / (24 * self.E * self.I)) * (x ** 4 - 2 * self.L * x ** 3 + self.L ** 2 * x ** 2)
             rot = (self.w / (24 * self.E * self.I)) * (4 * x ** 3 - 6 * self.L * x ** 2 + 2 * self.L ** 2 * x)
         elif problem[1] == "fixed" and problem[2] == "pinned":
-            u = (self.w / (48* self.E * self.I)) * (-2 * x ** 4 + 5 * L * x ** 3 - 3 * self.L ** 2 * x ** 2)
+            u = (self.w / (48* self.E * self.I)) * (-2 * x ** 4 + 5 * self.L * x ** 3 - 3 * self.L ** 2 * x ** 2)
             rot = (1 / (6 * self.E * self.I)) * (
                         self.w * x ** 3 + 3 * C1 * x ** 2 - 3 * self.w * self.L ** 2 * x - 6 * C1 * self.L * x)
 

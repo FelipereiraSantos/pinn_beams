@@ -1,3 +1,12 @@
+# The following code was borrowed from the SciANN documentation in its repository.
+# Please, refer to site https://www.sciann.com to access the original code and more SciANN applications.
+# The correspondent paper is the following:
+
+# Haghighat, Ehsan, and Ruben Juanes. "SciANN: A Keras/TensorFlow wrapper for scientific computations and
+# physics-informed deep learning using artificial neural networks."
+# Computer Methods in Applied Mechanics and Engineering 373 (2021): 113552.
+
+
 # ==============================================================================
 # Copyright 2021 SciANN -- Ehsan Haghighat.
 # All Rights Reserved.

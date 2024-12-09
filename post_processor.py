@@ -2,14 +2,15 @@
 # @since 15 june, 2023
 # @version 06 October, 2023
 
-import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
 class PostProcessor:
     """
-        Class that represents a postprocessor for this program. The main tasks of this class are
-        plotting and printing results and comparisons
+        Class that represents a post-processor for this program. The main tasks of this class are
+        plotting and printing results and comparisons.
+
+        DISCLAIMER: some of the following method may not being in use, or may not being working.
     """
 
     @classmethod

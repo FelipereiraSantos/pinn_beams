@@ -2,13 +2,9 @@
 # @since 25 October, 2023
 # @version 25 October, 2023
 
-import numpy as np
-import matplotlib.pyplot as plt
+
 import sciann as sn
-import tensorflow as tf
 from sciann_datagenerator import *
-import time
-import sys
 
 
 class EB_Stability_Discovery:
@@ -16,7 +12,7 @@ class EB_Stability_Discovery:
          Class that represents provide features for the Euler-Bernoulli beam stability
          analysis of parameter discovery
 
-         Based on the problem''s initial and boundary conditions, the tasks of this class are:
+         Based on the problem's initial and boundary conditions, the tasks of this class are:
 
              1. Create the inputs and outputs for the physics-informed neural network
              2. Build the reference solution to compare with the predictions later on
@@ -27,9 +23,9 @@ class EB_Stability_Discovery:
             Constructor of the Euler-Benoulli beam class for stability
 
             Attributes:
-                network (keras network): usually represents a neural network used to approximate the target
-                problem solution
-                P: Point load at the  beam
+                network: list of settings of a neural network used to approximate the target
+                problem solution [size, activation function, initialiser]
+                P: Point load at the beam
                 L: beam span
                 E: Young modulus
                 I: inertia moment

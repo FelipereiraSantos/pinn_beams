@@ -77,7 +77,10 @@ class EB_Stability:
     def model_info(self):
         """
         Method to write the physical model information in the text file output that contains the
-        elvaluation of the MSE errors
+        evaluation of the MSE errors
+
+        DISCLAIMER: this method might be unused
+
 
         """
         model_parameters = 'Number of training samples: ' + str(self.num_training_samples) + \
@@ -121,156 +124,6 @@ class EB_Stability:
 
         # Creating the training input points
         self.input_data, self.target_data = dg.get_data()
-
-    # def pinned_pinned(self, problem):
-    #     """
-    #          Method to setting the features for a simply-supported beam with an axial load
-    #
-    #     """
-    #
-    #     # Reference solution for the predictions ======================================
-    #     x = np.linspace(0, self.L, int(self.num_test_samples))
-    #     self.x_test = x
-    #     x, u_ref, rot_ref = self.reference_solution(x, problem)
-    #     self.ref_solu = [u_ref, rot_ref]
-    #     # Reference solution for the predictions ======================================
-    #
-    #     # Boundary and initial conditions
-    #     BC_left_1 = (self.x == 0.) * (self.u)
-    #     BC_left_2 = (self.x == 0.) * (self.d2u_dx2)
-    #     BC_left_3 = (self.x == 0.) * (self.du_dx - 0.5)
-    #
-    #     BC_right_1 = (self.x == self.L) * (self.u)
-    #     BC_right_2 = (self.x == self.L) * (self.d2u_dx2)
-    #     BC_right_3 = (self.x == self.L) * (self.du_dx + 0.5)
-    #
-    #     # Loss function
-    #     self.targets = [self.eqDiff1,
-    #                     BC_left_1, BC_left_2,BC_left_3,
-    #                     BC_right_1, BC_right_2,BC_right_3]
-    #
-    #     dg = DataGeneratorX(X=[0., self.L],
-    #                         num_sample=self.num_training_samples,
-    #                         targets=1 * ['domain'] + 3 * ['bc-left'] + 3 * ['bc-right'])
-    #
-    #     # Creating the training input points
-    #     self.input_data, self.target_data = dg.get_data()
-
-    # def fixed_pinned(self):
-    #     """
-    #          Method to setting the features for a fixed-pinned beam with an axial load
-    #
-    #     """
-    #     zero = tf.constant(0.0)
-    #     one = tf.constant(1.0)
-    #     # Reference solution for the predictions ======================================
-    #     x = np.linspace(0, self.L, int(self.num_test_samples))
-    #     self.x_test = x
-    #     u_ref = (self.a / np.cos(self.k * self.L)) * (np.cos(self.k * x) - 1)
-    #
-    #     self.ref_solu = u_ref
-    #     # Reference solution for the predictions ======================================
-    #
-    #     # Boundary and initial conditions
-    #     BC_left_1 = (self.x == 0.) * (self.u)
-    #     BC_left_2 = (self.x == 0.) * (self.du_dx)
-    #
-    #     BC_right_1 = (self.x == self.L) * (self.u)
-    #     BC_right_2 = (self.x == self.L) * (self.d2u_dx2)
-    #     BC_right_3 = (self.x == self.L) * (self.rot - one)
-    #
-    #     # Loss function
-    #     self.targets = [self.eqDiff1, self.eqDiff2,
-    #                     BC_left_1, BC_left_2,
-    #                     BC_right_1, BC_right_2,BC_right_3]
-    #
-    #     dg = DataGeneratorX(X=[0., self.L],
-    #                         num_sample=self.num_training_samples,
-    #                         targets=2 * ['domain'] + 2 * ['bc-left'] + 3 * ['bc-right'])
-    #
-    #     # Creating the training input points
-    #     self.input_data, self.target_data = dg.get_data()
-    #
-    # def fixed_fixed(self):
-    #     """
-    #          Method to setting the features for a fixed-fixed beam with an axial load
-    #
-    #     """
-    #     zero = tf.constant(0.0)
-    #     one = tf.constant(1.0)
-    #     # Reference solution for the predictions ======================================
-    #     x = np.linspace(0, self.L, int(self.num_test_samples))
-    #     self.x_test = x
-    #     u_ref = (self.a / np.cos(self.k * self.L)) * (np.cos(self.k * x) - 1)
-    #
-    #     self.ref_solu = u_ref
-    #     # Reference solution for the predictions ======================================
-    #
-    #     # Boundary and initial conditions
-    #     BC_left_1 = (self.x == 0.) * (self.u)
-    #     BC_left_2 = (self.x == 0.) * (self.du_dx)
-    #     BC_left_3 = (self.x == 0.) * (self.rot)
-    #     BC_left = (self.x == self.L/4) * (self.du_dx - one)
-    #     middle1 = (self.x == self.L/2) * (self.u - one)
-    #     middle2 = (self.x == self.L / 2) * (self.du_dx)
-    #
-    #
-    #     BC_right_1 = (self.x == self.L) * (self.u)
-    #     BC_right_2 = (self.x == self.L) * (self.du_dx)
-    #     BC_right_3 = (self.x == self.L) * (self.rot)
-    #     BC_right = (self.x == 3 *self.L / 4) * (self.du_dx + one)
-    #
-    #     # Loss function
-    #     self.targets = [self.eqDiff1,
-    #                     BC_left_1, BC_left_2,
-    #                     BC_left,
-    #                     BC_right,
-    #                     BC_right_1, BC_right_2
-    #                     ]
-    #
-    #     dg = DataGeneratorX(X=[0., self.L/4, 3*self.L/4, self.L],
-    #                         num_sample=self.num_training_samples,
-    #                         targets=1 * ['domain'] + 2 * ['supports'] + 1 * ['supports'] + 1 * ['supports'] + 2 * ['supports'])
-    #
-    #     # Creating the training input points
-    #     self.input_data, self.target_data = dg.get_data()
-
-
-    # def fixed_free(self, problem):
-    #     """
-    #          Method to setting the features for a cantilever beam with an axial load
-    #
-    #     """
-    #     zero = tf.constant(0.0)
-    #     one = tf.constant(1.0)
-    #     # Reference solution for the predictions ======================================
-    #     x = np.linspace(0, self.L, int(self.num_test_samples))
-    #     self.x_test = x
-    #     u_ref = (self.a / np.cos(self.k * self.L)) * (np.cos(self.k * x) - 1)
-    #
-    #     self.ref_solu = u_ref
-    #     # Reference solution for the predictions ======================================
-    #
-    #     # Boundary and initial conditions
-    #     BC_left_1 = (self.x == 0.) * (self.u)
-    #     BC_left_2 = (self.x == 0.) * (self.du_dx)
-    #     # BC_left_3 = (self.x == 0.) * (self.d3u_dx3)
-    #
-    #     BC_right_1 = (self.x == self.L) * (self.d2u_dx2)
-    #     # BC_right_2 = (self.x == self.L) * (self.d3u_dx3 + self.du_dx * self.k ** 2)
-    #     BC_right_2 = (self.x == self.L) * (self.du_dx - 0.5)
-    #
-    #     # Loss function
-    #     self.targets = [self.eqDiff1,
-    #                BC_left_1, BC_left_2,
-    #                BC_right_1, BC_right_2]
-    #
-    #     dg = DataGeneratorX(X=[0., self.L],
-    #                         num_sample=self.num_training_samples,
-    #                         targets=1 * ['domain'] + 2 * ['bc-left'] + 2 * ['bc-right'])
-    #
-    #     # Creating the training input points
-    #     self.input_data, self.target_data = dg.get_data()
 
     def fixed_free_2specie(self, problem):
         """

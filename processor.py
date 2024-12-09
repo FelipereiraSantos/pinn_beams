@@ -1,14 +1,11 @@
 # @author Felipe Pereira dos Santos
 # @since 06 October, 2023
 # @version 06 October, 2023
-import sys
 
-from input_information import InputInformation
 import sciann as sn
 from callbacks import EvaluateAtEpoch
 import time
 from post_processor import PostProcessor
-import os
 
 class Processor:
     """
@@ -16,15 +13,22 @@ class Processor:
 
          The tasks of this class are:
 
-             1. Train the model
+             1. Build the physics-informed model and train it
+             2. Call a post-processor to save the results in external files
     """
 
     def __init__(self, cback_config):
+        """
+
+        Args:
+            cback_config: list of the settings to use in the callback function during the model training
+        """
 
         self.cback_config = cback_config
 
     def training_model(self, pmodel, problem, lr, bs, epoch, count, file_name):
 
+        # To use the callback configuration and evaluate the model during the training
         if self.cback_config[0] == "on":
             start = (self.cback_config[1])[0]  # Start epoch
             end = (self.cback_config[1])[1]   # Last epoch
@@ -37,10 +41,11 @@ class Processor:
             # Defining the model
             model = sn.SciModel(pmodel.variables, pmodel.targets, optimizer='adam',
                                 loss_func="mse")
+
+            # # In SciANN, this is the way for loading a trained model (wights and biases)
             # model = sn.SciModel(pmodel.variables, pmodel.targets, optimizer='adam',
             #                     loss_func="mse", load_weights_from='weights_test.hdf5')
-            # model.save_weights("weights_test.hdf5")
-            # sys.exit()
+
             print("The model number {} was defined. ".format(count))
 
             start_time = time.time()  # Record the start time at the beginning of the interval
@@ -53,9 +58,10 @@ class Processor:
                                   learning_rate=lr, callbacks=[evaluate_callback], stop_loss_value=1e-15)
             end_time = time.time()
             print("Time of training in seconds: ", (end_time - start_time))
+            # The way to save the trained model if needed
             # model.save_weights("Tk_statics_pp_q_weights.hdf5")
 
-            # For discover of parameters
+            # For discover of parameters, use this code
             # if (pmodel.problem != "EB_stability_discovery") and (pmodel.problem != "EB_stability_discovery_timobook"):
             #     # Mesh to make predictions and save the results as CSV files
             #     mesh = self.cback_config[2]
@@ -76,6 +82,7 @@ class Processor:
 
             return model, history
 
+        # To NOT use the callback configuration, hence, NOT evaluate the model during the training
         else:
             model = sn.SciModel(pmodel.variables, pmodel.targets, optimizer='adam',
                                 loss_func="mse")

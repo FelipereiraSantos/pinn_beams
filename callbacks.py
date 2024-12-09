@@ -2,10 +2,6 @@
 # @since 01 October, 2023
 # @version 01 October, 2023
 
-# import sciann as sn
-# import numpy as np
-# import matplotlib.pyplot as plt
-import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.keras.callbacks import Callback
@@ -14,7 +10,24 @@ import sciann as sn
 
 # Define a custom callback to evaluate the model at specific epochs.
 class EvaluateAtEpoch(Callback):
+
+    """
+         Class responsible to evaluate and provide partial error results during the training.
+
+    """
     def __init__(self, evaluate_epochs, pmodel, start_time, file_name):
+        """
+            Constructor of the callback class
+
+            Attributes:
+                evaluate_epochs: list of epochs that this function is called to provide the partial results
+                pmodel: refers to the physics-informed model that has been trained
+                file_name: used as reference to write a csv file using a name based on the input file's name
+                start_time: define the time counting before training
+                count_time: list of time counting with respect to each epoch of the list 'evaluate_epochs'
+                error: list of the computed errors with respect to each epoch of the list 'evaluate_epochs'
+
+        """
         super().__init__()
         self.evaluate_epochs = evaluate_epochs
         self.pmodel = pmodel
@@ -30,15 +43,16 @@ class EvaluateAtEpoch(Callback):
 
             # Storing the time for every target epoch
             self.count_time.append(elapsed_time)
+
+            # Refers to the buckling load discovery of the Euler-Bernoulli beams and the study case of a beams with a varying cross-section from the Timoshenko book:
+            # Timoshenko, S. P., & Gere, J. M. (1963). Theory of Elastic Stability (2nd ed.). McGraw-Hill Book Company.
             if (self.pmodel.problem == 'EB_stability_discovery') or (self.pmodel.problem == 'EB_stability_discovery_timobook'):
                 P_exact = self.pmodel.ref_solu
                 P_pred = self.pmodel.P.value
                 error = np.abs(P_exact - P_pred) / P_exact
-                # print("P_pred: ", P_pred)
-                # print("P_exact: ", P_exact)
-                # print("error: ", error)
                 self.error.append(error)
 
+            # Refers to the bending of the Euler-Bernoulli beam-columns (forward problem, stability)
             elif (self.pmodel.problem == 'EB_stability'):
                 # Evaluate your model here
                 # Making predictions based on the training
@@ -53,10 +67,8 @@ class EvaluateAtEpoch(Callback):
 
                 error = self.error_norm(u_ref, u_pred, rot_ref, rot_pred)
                 self.error.append(error)
-                # print("error: ", error)
 
-                # self.plotting(x_test, u_ref, u_pred, rot_ref, rot_pred, epoch)
-
+            # Refers to the bending problem of the non-linear beam from the Timoshenko book (forward problem)
             elif(self.pmodel.problem == 'Nonlinear_TimoEx'):
                 x_test = self.pmodel.x_test
                 rot_exact = self.pmodel.ref_solu
@@ -67,11 +79,6 @@ class EvaluateAtEpoch(Callback):
                 print("error: ", error)
                 self.error.append(error)
 
-                # plt.plot(x_test, rot_pred, 'r')
-                # plt.grid(color='black', linestyle='--', linewidth=0.5)
-                # plt.legend(loc='best')
-                # plt.savefig(self.file_name + '_' + str(epoch) + '.pdf')
-                # plt.clf()  # Clears the current axis
 
             else:
 
@@ -85,17 +92,9 @@ class EvaluateAtEpoch(Callback):
                 u_ref = self.pmodel.ref_solu[0]
                 rot_ref = self.pmodel.ref_solu[1]
 
-                # if x_test.size % 2 > 0:
-                #     u_pred = np.concatenate((u_pred, u_pred[:-1][::-1]))
-                #     rot_pred = np.concatenate((rot_pred, rot_pred[:-1][::-1]))
-                # else:
-                #     u_pred = np.concatenate((u_pred, u_pred[::-1]))
-                #     rot_pred = np.concatenate((rot_pred, rot_pred[::-1]))
-
                 error = self.error_norm(u_ref, u_pred, rot_ref, rot_pred)
                 self.error.append(error)
 
-                # self.plotting(x_test, u_ref, u_pred, rot_ref, rot_pred, epoch)
 
     def error_norm(self, u_ref, u_pred, rot_ref, rot_pred):
         # take square of differences and sum them
@@ -108,39 +107,39 @@ class EvaluateAtEpoch(Callback):
         error = np.sqrt((num_u + num_rot)/(dem_u + dem_rot))
         return error
 
-    def plotting(self, x_test, u_ref, u_pred, rot_ref, rot_pred, num_epochs):
-        err_u = np.linalg.norm(u_pred - u_ref) / np.linalg.norm(u_ref)
-        err_rot = np.linalg.norm(rot_pred - rot_ref) / np.linalg.norm(rot_ref)
-
-        err_u = "{:.3e}".format(err_u)
-        err_rot = "{:.3e}".format(err_rot)
-
-        fig, ax = plt.subplots(1, 2, figsize=(8, 3))
-        # fig.subplots_adjust(bottom=0.15, left=0.2)
-        # str(round(err_u, 3))
-        ax[0].plot(x_test, u_pred, 'r', x_test, u_ref, 'b')
-        ax[0].set_xlabel('x [m]')
-        ax[0].set_ylabel('displacements [m]')
-        ax[0].text(0.01, 0.01, "error disp: " + str(err_u),
-                   verticalalignment='bottom', horizontalalignment='left',
-                   transform=ax[0].transAxes,
-                   color='black', fontsize=8)
-        # ax[0].text(0.15, 3, "error disp: " + str(err_u), fontsize=15)
-        ax[0].grid()
-        plt.grid(color='black', linestyle='--', linewidth=0.5)
-        plt.legend(loc='best')
-
-        ax[1].plot(x_test, rot_pred, 'r', x_test, rot_ref, 'b')
-        ax[1].set_xlabel('x [m]')
-        ax[1].set_ylabel('rad []')
-        ax[1].text(0.01, 0.01, "error rot: " + str(err_rot),
-                   verticalalignment='bottom', horizontalalignment='left',
-                   transform=ax[1].transAxes,
-                   color='black', fontsize=8)
-        ax[1].grid()
-        plt.grid(color='black', linestyle='--', linewidth=0.5)
-        plt.legend(loc='best')
-        plt.savefig(self.file_name + '0.001_32' + '_' + str(num_epochs) + '.pdf')
-        plt.clf() # Clears the current axis
-
-        # plt.show()
+    # def plotting(self, x_test, u_ref, u_pred, rot_ref, rot_pred, num_epochs):
+    #     err_u = np.linalg.norm(u_pred - u_ref) / np.linalg.norm(u_ref)
+    #     err_rot = np.linalg.norm(rot_pred - rot_ref) / np.linalg.norm(rot_ref)
+    #
+    #     err_u = "{:.3e}".format(err_u)
+    #     err_rot = "{:.3e}".format(err_rot)
+    #
+    #     fig, ax = plt.subplots(1, 2, figsize=(8, 3))
+    #     # fig.subplots_adjust(bottom=0.15, left=0.2)
+    #     # str(round(err_u, 3))
+    #     ax[0].plot(x_test, u_pred, 'r', x_test, u_ref, 'b')
+    #     ax[0].set_xlabel('x [m]')
+    #     ax[0].set_ylabel('displacements [m]')
+    #     ax[0].text(0.01, 0.01, "error disp: " + str(err_u),
+    #                verticalalignment='bottom', horizontalalignment='left',
+    #                transform=ax[0].transAxes,
+    #                color='black', fontsize=8)
+    #     # ax[0].text(0.15, 3, "error disp: " + str(err_u), fontsize=15)
+    #     ax[0].grid()
+    #     plt.grid(color='black', linestyle='--', linewidth=0.5)
+    #     plt.legend(loc='best')
+    #
+    #     ax[1].plot(x_test, rot_pred, 'r', x_test, rot_ref, 'b')
+    #     ax[1].set_xlabel('x [m]')
+    #     ax[1].set_ylabel('rad []')
+    #     ax[1].text(0.01, 0.01, "error rot: " + str(err_rot),
+    #                verticalalignment='bottom', horizontalalignment='left',
+    #                transform=ax[1].transAxes,
+    #                color='black', fontsize=8)
+    #     ax[1].grid()
+    #     plt.grid(color='black', linestyle='--', linewidth=0.5)
+    #     plt.legend(loc='best')
+    #     plt.savefig(self.file_name + '0.001_32' + '_' + str(num_epochs) + '.pdf')
+    #     plt.clf() # Clears the current axis
+    #
+    #     # plt.show()

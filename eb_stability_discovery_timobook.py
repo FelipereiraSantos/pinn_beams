@@ -2,13 +2,9 @@
 # @since 04 November, 2023
 # @version 04 November, 2023
 
-import numpy as np
-import matplotlib.pyplot as plt
+
 import sciann as sn
-import tensorflow as tf
 from sciann_datagenerator import *
-import time
-import sys
 
 
 class EB_Stability_Discovery_TimoBook:
@@ -20,6 +16,15 @@ class EB_Stability_Discovery_TimoBook:
 
              1. Create the inputs and outputs for the physics-informed neural network
              2. Build the reference solution to compare with the predictions later on
+
+
+            This is a discovery problem, the discovery of the buckling load for this study case.
+
+            [1] Timoshenko, S. P., & Gere, J. M. (1963). Theory of elastic stability. International student edition,
+            second edition, McGraw-Hill.
+
+            [2] Chen, Y., Cheung, Y., & Xie, J. (1989). Buckling loads of columns with varying cross sections. Journal of Engineering
+            Mechanics, 115(3), 662–667.
     """
 
     def __init__(self, network, P, L, E, I, inertia_ratio, a, num_training_samples, num_test_samples):
@@ -27,8 +32,8 @@ class EB_Stability_Discovery_TimoBook:
             Constructor of the Euler-Benoulli single beam stability class.
 
             Attributes:
-                network (keras network): usually represents a neural network used to approximate the target
-                problem solution
+                network: list of settings of a neural network used to approximate the target
+                problem solution [size, activation function, initialiser]
                 w: distributed load over the beam
                 L: beam span
                 E: Young modulus
@@ -38,8 +43,6 @@ class EB_Stability_Discovery_TimoBook:
                 num_training_samples: number of samples for training the model
                 num_test_samples: number of samples for testing the model (predictions)
 
-            Args:
-                gradient: (GradientLayer_net_u): used to compute the derivatives needed for the target problem
 
         """
 

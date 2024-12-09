@@ -1,34 +1,35 @@
 # @author Felipe Pereira dos Santos
-# @since 27 december, 2023
-# @version 27 december, 2023
+# @since 27 December, 2023
+# @version 27 December, 2023
 
-import numpy as np
-import matplotlib.pyplot as plt
 import sciann as sn
-import tensorflow as tf
 from sciann_datagenerator import *
-import time
-import sys
 
 
 class Nonlinear_TimoEx:
     """
-         Class that represents provide features for the Timoshenko bending beam analysis.
+         Class responsible to provide features for the non-linear example beam-column analysis.
 
-         Based on the problem''s initial and boundary conditions, the tasks of this class are:
+         Based on the problem's governing equations and boundary conditions, the tasks of this class are:
 
              1. Create the inputs and outputs for the physics-informed neural network
              2. Build the reference solution to compare with the predictions later on
+
+
+         This problem and its reference results were extracted from the following book:
+
+         [1] Timoshenko, S. P., & Gere, J. M. (1982). Mecânica dos Sólidos. Volume 1.
+         This is a translated version (Portuguese) of the Mechanics of Materials book
     """
 
     def __init__(self, network, P, L, E, I, num_training_samples, num_test_samples):
         """
-            Constructor of the Euler-Benoulli beam class for stability
+            Constructor of the non-linear beam study case with a vertical point load at the beam's tip
 
             Attributes:
-                network (keras network): usually represents a neural network used to approximate the target
-                problem solution
-                P: Point load at the  beam
+                network (keras network): list of settings of a neural network used to approximate the target
+                problem solution [size, activation function, initialiser]
+                P: Point load at the beam's tip
                 L: beam span
                 E: Young modulus
                 I: inertia moment
@@ -62,11 +63,7 @@ class Nonlinear_TimoEx:
         dtype = 'float32'
 
         self.xi = sn.Variable("xi", dtype=dtype)
-        # self.u = sn.Functional('u', self.x, network[0], network[1], kernel_initializer=network[2])
         self.rot = sn.Functional('rot', self.xi, network[0], network[1], kernel_initializer=network[2])
-        # self.P = sn.Parameter(0.05, inputs=self.x, name='Pcr')
-        # self.P = sn.Parameter(1.0, inputs=self.x, name='Pcr')
-        # self.alpha = sn.Parameter(1.0, inputs=self.x, name='Alpha')
 
         self.drot_dx = sn.diff(self.rot, self.xi)
         self.d2rot_dx2 = sn.diff(self.rot, self.xi, order=2)
@@ -78,18 +75,21 @@ class Nonlinear_TimoEx:
     def model_info(self):
         """
         Method to write the physical model information in the text file output that contains the
-        elvaluation of the MSE errors
+        evaluation of the MSE errors
+
+        DISCLAIMER: this method might be unused
 
         """
         model_parameters = 'Number of training samples: ' + str(self.num_training_samples) + \
                            '\nP: ' + str(self.P) + ' N | ' + 'L: ' + str(self.L) + ' m | ' + 'E: ' +\
-                           str(self.E) + ' N/m² | ' + 'I: ' + str(self.I) + ' m^4 | ' + 'a: ' + str(self.a) + ' m\n'
+                           str(self.E) + ' N/m² | ' + 'I: ' + str(self.I) + ' m^4 | ' + 'alpha: ' + str(self.alpha) + ' m\n'
         return model_parameters
 
 
     def fixed_free(self, problem):
         """
-             Method to setting the features for a cantilever beam with an axial load
+             Method for defining the loss function of the non-linear beam a vertical load P at the beam's tip.
+             In this method, the input data and target data (in the PINN context) are also generated.
 
         """
 
@@ -103,7 +103,6 @@ class Nonlinear_TimoEx:
 
         # Boundary and initial conditions
         BC_left_1 = (self.xi == 0.) * (self.rot)
-
         BC_right_1 = (self.xi == self.L_aux) * (self.drot_dx)
 
         # Loss function
@@ -126,9 +125,13 @@ class Nonlinear_TimoEx:
 
          [1] Timoshenko, S. P., & Gere, J. M. (1982). Mecânica dos Sólidos. Volume 1.
 
-         For each alpha value, there is a correspondent m that generates the solution in terms of th rotation theta.
+         This is a translated version (Portuguese) of the Mechanics of Materials book
+
+         For each alpha value, there is a correspondent 'm' that generates the solution in terms of the rotation 'theta'.
 
         """
+
+        # The following rotation values (theta) were extracted from the book used as reference
         theta = (np.pi / 2) * np.array([0.079, 0.156, 0.228, 0.294, 0.498, 0.628, 0.714, 0.774, 0.817, 0.849, 0.874, 0.894, 0.911])
         alpha = np.array([0.25, 0.50, 0.75, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
         dic_theta = dict(zip(alpha, theta))

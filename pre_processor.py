@@ -6,15 +6,10 @@ from input_information import InputInformation
 
 class PreProcessor:
     """
-         Class that represents a preprocessor for this program. All information of the
-         target problem is filled here, as well as the initial settings regarding the machine
-         learning approach
-
-         The tasks of this class are:
-
-             1. Initialize the input data class where the problem's initial settings are defined,
-             such as the material data, training parameters, and neural network framework
-             2. Initialize both neural networks: the usual one and also the physics-informed one
+         Class that represents a preprocessor for this program. The physics-informed neural network is build,
+         and this class return it.
+         All information of the target problem is filled in the input data method, as well as the initial settings regarding the machine
+         learning approach.
     """
 
     @classmethod
@@ -27,12 +22,7 @@ class PreProcessor:
                 boundary conditions
 
             Returns:
-                network: usual neural network
-                PINN_model: physics-informed neural network constructed for the target problem
-                x_train: input training parameters
-                y_train: output training parameters (target, labels)
-                ref_solu: reference solution to compare with the predictions
-                x_nn: test parameters to perform the predictions
+                pmodel: the physics-informed neural network for the target problem
 
         """
 
