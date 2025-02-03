@@ -26,7 +26,7 @@ class Processor:
 
         self.cback_config = cback_config
 
-    def training_model(self, pmodel, problem, lr, bs, epoch, count, file_name):
+    def training_model(self, pmodel, problem, lr, bs, epoch, file_name):
 
         # To use the callback configuration and evaluate the model during the training
         if self.cback_config[0] == "on":
@@ -46,14 +46,14 @@ class Processor:
             # model = sn.SciModel(pmodel.variables, pmodel.targets, optimizer='adam',
             #                     loss_func="mse", load_weights_from='weights_test.hdf5')
 
-            print("The model number {} was defined. ".format(count))
+            # print("\nThe model number {} was defined. ".format(count))
 
             start_time = time.time()  # Record the start time at the beginning of the interval
 
             # Create an instance of the custom callback.
             evaluate_callback = EvaluateAtEpoch(evaluate_epochs, pmodel, start_time, file_name)
             print("\nStarting the training!")
-            print("The data fitting process (training) has started for the model: ", count)
+            print("The data fitting process (training) has started for the model.")
             history = model.train(pmodel.input_data, pmodel.target_data, batch_size=bs, epochs=epoch, verbose=0,
                                   learning_rate=lr, callbacks=[evaluate_callback], stop_loss_value=1e-15)
             end_time = time.time()
@@ -86,9 +86,9 @@ class Processor:
         else:
             model = sn.SciModel(pmodel.variables, pmodel.targets, optimizer='adam',
                                 loss_func="mse")
-            print("The model number {} was defined. ".format(count))
+            # print("The model number {} was defined. ".format(count))
 
-            print("The data fitting process (training) has started for the model: ", count)
+            print("The data fitting process (training) has started for the model.")
             history = model.train(pmodel.input_data, pmodel.target_data, batch_size=bs, epochs=epoch, verbose=0,
                                   learning_rate=lr, stop_loss_value=1e-12)
 

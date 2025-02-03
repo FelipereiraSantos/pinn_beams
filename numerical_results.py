@@ -9,6 +9,7 @@ from tkinter import filedialog as fd
 from pre_processor import PreProcessor
 from processor import Processor
 import os
+import gc
 
 class NumericalResults:
     """
@@ -153,7 +154,6 @@ class NumericalResults:
         values obtained during the training and the correspondent epochs.
 
         """
-        count = 1 # To count the model number of a particular neural network
 
         # The problem is defined, as well as the weights and biases, activation function and neural network
         pmodel = PreProcessor.initialize_model(self.problem, self.neural_net, self.m_parameters)
@@ -169,8 +169,7 @@ class NumericalResults:
                             net_par = str(lr) + '_' + str(bs) + '_' + str(epoch)
 
                             processor = Processor(self.initial_features)
-                            model, history = processor.training_model(pmodel, self.problem, lr, bs, epoch, count, self.file_name)
-
+                            model, history = processor.training_model(pmodel, self.problem, lr, bs, epoch, self.file_name)
 
     def save_csv_error(self, pmodel, problem, mesh, net_par):
         L = pmodel.L
