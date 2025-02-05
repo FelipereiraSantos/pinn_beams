@@ -40,9 +40,7 @@ The last version of the code has been tested with the following package versions
 
 # Disclaimer
 
-This code is not optimized, and some parts of its structure could be better organized. Contributions and improvements are welcome.
-
-
+This code is not optimized, and some parts of its structure could be better organized. It has been made public to support those beginning their studies on Physics-Informed Neural Networks (PINNs).
 
 # Paper abstract
 
